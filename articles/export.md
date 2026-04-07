@@ -34,19 +34,19 @@ mydata         <- suppressWarnings( quality_control(mydata) )
 #> 
 #> ── Starting Metabolite QC Process ──────────────────────────────────────────────
 #> ℹ Validating input parameters
-#> ✔ Validating input parameters [8ms]
+#> ✔ Validating input parameters [7ms]
 #> 
 #> ℹ Sample & Feature Summary Statistics for raw data
-#> ✔ Sample & Feature Summary Statistics for raw data [986ms]
+#> ✔ Sample & Feature Summary Statistics for raw data [1s]
 #> 
 #> ℹ Copying input data to new 'qc' data layer
-#> ✔ Copying input data to new 'qc' data layer [36ms]
+#> ✔ Copying input data to new 'qc' data layer [29ms]
 #> 
 #> ℹ Assessing for extreme sample missingness >=80% - excluding 0 sample(s)
-#> ✔ Assessing for extreme sample missingness >=80% - excluding 0 sample(s) [17ms]
+#> ✔ Assessing for extreme sample missingness >=80% - excluding 0 sample(s) [16ms]
 #> 
 #> ℹ Assessing for extreme feature missingness >=80% - excluding 0 feature(s)
-#> ✔ Assessing for extreme feature missingness >=80% - excluding 0 feature(s) [17m…
+#> ✔ Assessing for extreme feature missingness >=80% - excluding 0 feature(s) [20m…
 #> 
 #> ℹ Assessing for sample missingness at specified level of >=20% - excluding 0 sa…
 #> ✔ Assessing for sample missingness at specified level of >=20% - excluding 2 sa…
@@ -58,17 +58,17 @@ mydata         <- suppressWarnings( quality_control(mydata) )
 #> ✔ Calculating total peak abundance outliers at +/- 5 Sdev - excluding 0 sample(…
 #> 
 #> ℹ Running sample data PCA outlier analysis at +/- 5 Sdev
-#> ✔ Running sample data PCA outlier analysis at +/- 5 Sdev [17ms]
+#> ✔ Running sample data PCA outlier analysis at +/- 5 Sdev [15ms]
 #> 
 #> ℹ Sample PCA outlier analysis - re-identify feature independence and PC outlier…
 #> ! The stated max PCs [max_num_pcs=10] to use in PCA outlier assessment is greater than the number of available informative PCs [2]
 #> ℹ Sample PCA outlier analysis - re-identify feature independence and PC outlier…✔ Sample PCA outlier analysis - re-identify feature independence and PC outlier…
 #> 
 #> ℹ Creating final QC dataset...
-#> ✔ Creating final QC dataset... [892ms]
+#> ✔ Creating final QC dataset... [824ms]
 #> 
 #> ℹ Metabolite QC Process Completed
-#> ✔ Metabolite QC Process Completed [22ms]
+#> ✔ Metabolite QC Process Completed [27ms]
 ```
 
 ## Export Metaboprep
@@ -88,18 +88,18 @@ unname(sapply(files, function(path) {
   parts <- strsplit(path, .Platform$file.sep)[[1]]
   paste(tail(parts, 4), collapse = .Platform$file.sep)
 }))
-#>  [1] "output/metaboprep_export_2026_03_18/input/config.yml"         
-#>  [2] "output/metaboprep_export_2026_03_18/input/data.tsv"           
-#>  [3] "output/metaboprep_export_2026_03_18/input/feature_summary.tsv"
-#>  [4] "output/metaboprep_export_2026_03_18/input/features.tsv"       
-#>  [5] "output/metaboprep_export_2026_03_18/input/sample_summary.tsv" 
-#>  [6] "output/metaboprep_export_2026_03_18/input/samples.tsv"        
-#>  [7] "output/metaboprep_export_2026_03_18/qc/config.yml"            
-#>  [8] "output/metaboprep_export_2026_03_18/qc/data.tsv"              
-#>  [9] "output/metaboprep_export_2026_03_18/qc/feature_summary.tsv"   
-#> [10] "output/metaboprep_export_2026_03_18/qc/feature_tree.RDS"      
-#> [11] "output/metaboprep_export_2026_03_18/qc/features.tsv"          
-#> [12] "output/metaboprep_export_2026_03_18/qc/sample_summary.tsv"    
-#> [13] "output/metaboprep_export_2026_03_18/qc/samples.tsv"           
-#> [14] "output/metaboprep_export_2026_03_18/qc/var_exp.tsv"
+#>  [1] "output/metaboprep_export_2026_04_07/input/config.yml"         
+#>  [2] "output/metaboprep_export_2026_04_07/input/data.tsv"           
+#>  [3] "output/metaboprep_export_2026_04_07/input/feature_summary.tsv"
+#>  [4] "output/metaboprep_export_2026_04_07/input/features.tsv"       
+#>  [5] "output/metaboprep_export_2026_04_07/input/sample_summary.tsv" 
+#>  [6] "output/metaboprep_export_2026_04_07/input/samples.tsv"        
+#>  [7] "output/metaboprep_export_2026_04_07/qc/config.yml"            
+#>  [8] "output/metaboprep_export_2026_04_07/qc/data.tsv"              
+#>  [9] "output/metaboprep_export_2026_04_07/qc/feature_summary.tsv"   
+#> [10] "output/metaboprep_export_2026_04_07/qc/feature_tree.RDS"      
+#> [11] "output/metaboprep_export_2026_04_07/qc/features.tsv"          
+#> [12] "output/metaboprep_export_2026_04_07/qc/sample_summary.tsv"    
+#> [13] "output/metaboprep_export_2026_04_07/qc/samples.tsv"           
+#> [14] "output/metaboprep_export_2026_04_07/qc/var_exp.tsv"
 ```

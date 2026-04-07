@@ -1,134 +1,135 @@
 # metaboprep
 
-The goal of `metaboprep` is to:
+Metabolomics & proteomics data preparation and quality control pipeline
+for R
 
-1.  Read in and processes (un)targeted metabolite data, saving datasets
-    in tab-delimited format for use elsewhere
-2.  Provide useful summary data in the form of tab-delimited text file
-    and a html report.  
-3.  Perform data filtering on the data set using a standard pipeline and
-    according to user-defined thresholds.
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+
+## Overview
+
+`metaboprep` supports the full data-preparation workflow for untargeted
+and targeted omics data:
+
+1.  **Import** raw data from Metabolon, Nightingale Health, Olink, and
+    SomaLogic platforms (Excel / flat-text)  
+2.  **Summarise** sample- and feature-level statistics  
+3.  **Filter** using a standard QC pipeline with user-defined
+    thresholds  
+4.  **Report** results as an interactive HTML or PDF document  
+5.  **Export** cleaned data for downstream analysis
 
 ## Installation
-
-You can install the development version of metaboprep from
-[GitHub](https://github.com/MRCIEU/metaboprep/tree/v2_development) with:
 
 ``` r
 # install.packages("pak")
 pak::pak("MRCIEU/metaboprep")
 ```
 
-## Cheatsheet
-
-![Cheatsheet](reference/figures/cheatsheet.png)
-
-Cheatsheet
-
-## Example
-
-This is a basic example which shows you how to load data and run the
-`metaboprep` quality control pipeline.
-
-### Read data into R and create the Metaboprep object
+## Quick start
 
 ``` r
 library(metaboprep)
 
-# import data 
-mydata <- read_metabolon(system.file("extdata", "metabolon_v1.1_example.xlsx", package = "metaboprep"), 
-                         sheet             = "OrigScale", ## The name of the sheet in the excel file to read in
-                         return_Metaboprep = FALSE        ## Whether to return a Metaboprep object (TRUE) or a list (FALSE)
-                         )
+# 1. Read data
+mydata <- read_metabolon(
+  system.file("extdata", "metabolon_v1.1_example.xlsx", package = "metaboprep"),
+  sheet             = "OrigScale",
+  return_Metaboprep = TRUE
+)
 
-# create metaboprep object
-mydata <- Metaboprep(data     = mydata$data, 
-                     features = mydata$features, 
-                     samples  = mydata$samples)
-```
+# 2. Run QC pipeline
+mydata <- mydata |> quality_control(
+  source_layer        = "input",
+  sample_missingness  = 0.2,
+  feature_missingness = 0.2,
+  total_peak_area_sd  = 5,
+  outlier_udist       = 5,
+  outlier_treatment   = "leave_be"
+)
 
-### Run the quality control pipeline
-
-``` r
-# run QC
-mydata <- mydata |> quality_control( source_layer        = "input", 
-                                     sample_missingness  = 0.2, 
-                                     feature_missingness = 0.2, 
-                                     total_peak_area_sd  = 5, 
-                                     outlier_udist       = 5, 
-                                     outlier_treatment   = "leave_be", 
-                                     winsorize_quantile  = 1.0, 
-                                     tree_cut_height     = 0.5, 
-                                     pc_outlier_sd       = 5, 
-                                     sample_ids          = NULL, 
-                                     feature_ids         = NULL)
-#> 
-#> ── Starting Metabolite QC Process ──────────────────────────────────────────────
-#> ℹ Validating input parameters✔ Validating input parameters [4ms]
-#> ℹ Sample & Feature Summary Statistics for raw data✔ Sample & Feature Summary Statistics for raw data [540ms]
-#> ℹ Copying input data to new 'qc' data layer✔ Copying input data to new 'qc' data layer [10ms]
-#> ℹ Assessing for extreme sample missingness >=80% - excluding 0 sample(s)✔ Assessing for extreme sample missingness >=80% - excluding 0 sample(s) [7ms]
-#> ℹ Assessing for extreme feature missingness >=80% - excluding 0 feature(s)✔ Assessing for extreme feature missingness >=80% - excluding 0 feature(s) [7ms]
-#> ℹ Assessing for sample missingness at specified level of >=20% - excluding 0 sa…✔ Assessing for sample missingness at specified level of >=20% - excluding 2 sa…
-#> ℹ Assessing for feature missingness at specified level of >=20% - excluding 0 f…✔ Assessing for feature missingness at specified level of >=20% - excluding 0 f…
-#> ℹ Calculating total peak abundance outliers at +/- 5 Sdev - excluding 0 sample(…✔ Calculating total peak abundance outliers at +/- 5 Sdev - excluding 0 sample(…
-#> ℹ Running sample data PCA outlier analysis at +/- 5 Sdev✔ Running sample data PCA outlier analysis at +/- 5 Sdev [8ms]
-#> ℹ Sample PCA outlier analysis - re-identify feature independence and PC outlier…ℹ Sample PCA outlier analysis - re-identify feature independence and PC outlier…                                                                                 ! The stated max PCs [max_num_pcs=10] to use in PCA outlier assessment is greater than the number of available informative PCs [2]
-#> ℹ Sample PCA outlier analysis - re-identify feature independence and PC outlier…✔ Sample PCA outlier analysis - re-identify feature independence and PC outlier…
-#> ℹ Creating final QC dataset...✔ Creating final QC dataset... [409ms]
-#> ℹ Metabolite QC Process Completed✔ Metabolite QC Process Completed [9ms]
-```
-
-### View a summary of the Metaboprep object
-
-``` r
-# view summary
+# 3. Summarise
 summary(mydata)
-#> 
-#> Metaboprep Object Summary
-#> --------------------------
-#> Samples      : 100
-#> Features     : 100
-#> Data Layers  : 2
-#> Layer Names  : input, qc
-#> 
-#> Sample Summary Layers : input, qc
-#> Feature Summary Layers: input, qc
-#> 
-#> Sample Annotation (metadata):
-#>   Columns: 8
-#>   Names  : sample_id, neg, pos, run_day, box_id, lot, reason_excluded, excluded
-#> 
-#> Feature Annotation (metadata):
-#>   Columns: 8
-#>   Names  : feature_id, metabolite_id, platform, pathway, kegg, group_hmdb, reason_excluded, excluded
-#> 
-#> Exclusion Codes Summary:
-#> 
-#>   Sample Exclusions:
-#> Exclusion | Count
-#> -----------------
-#> user_excluded                     | 0
-#> extreme_sample_missingness        | 0
-#> user_defined_sample_missingness   | 2
-#> user_defined_sample_totalpeakarea | 0
-#> user_defined_sample_pca_outlier   | 0
-#> 
-#>   Feature Exclusions:
-#> Exclusion | Count
-#> -----------------
-#> user_excluded                    | 0
-#> extreme_feature_missingness      | 0
-#> user_defined_feature_missingness | 0
+
+# 4. Generate HTML report
+generate_report(mydata, output_dir = ".")
 ```
 
-### Plot a dendrogram of the feature tree
+------------------------------------------------------------------------
 
-``` r
-# view feature tree
-tree <- attr(mydata@feature_summary, "qc_tree")
-par(mar = c(1,3,5,1) )
-plot(tree, hang = -1, cex = 0.75, main = "Example Dataset Feature Tree", sub = "", xlab = "")
-```
+## Articles
 
-![Dendrogram](reference/figures/README-treeplot-1.png)
+### Importing Data
+
+##### [Metabolon](https://mrcieu.github.io/metaboprep/articles/metabolon.md)
+
+Import untargeted metabolomics data from Metabolon Excel sheets.
+
+[Read →](https://mrcieu.github.io/metaboprep/articles/metabolon.md)
+
+##### [Nightingale Health](https://mrcieu.github.io/metaboprep/articles/nightingale.md)
+
+Import NMR-based metabolomic data from Nightingale Health.
+
+[Read →](https://mrcieu.github.io/metaboprep/articles/nightingale.md)
+
+##### [Olink](https://mrcieu.github.io/metaboprep/articles/olink.md)
+
+Import proximity extension assay proteomic data from Olink.
+
+[Read →](https://mrcieu.github.io/metaboprep/articles/olink.md)
+
+##### [SomaLogic](https://mrcieu.github.io/metaboprep/articles/somalogic.md)
+
+Import aptamer-based proteomic data from SomaLogic SomaScan.
+
+[Read →](https://mrcieu.github.io/metaboprep/articles/somalogic.md)
+
+### Summaries & QC
+
+##### [Sample Summary](https://mrcieu.github.io/metaboprep/articles/sample_summary.md)
+
+Compute per-sample statistics: missingness, total peak area, and
+PCA-based outlier detection.
+
+[Read →](https://mrcieu.github.io/metaboprep/articles/sample_summary.md)
+
+##### [Feature Summary](https://mrcieu.github.io/metaboprep/articles/feature_summary.md)
+
+Compute per-feature statistics: missingness, variance, and independent
+feature trees.
+
+[Read
+→](https://mrcieu.github.io/metaboprep/articles/feature_summary.md)
+
+##### [QC Pipeline](https://mrcieu.github.io/metaboprep/articles/quality_control.md)
+
+Run the full quality control pipeline with configurable thresholds for
+missingness, outliers, and more.
+
+[Read
+→](https://mrcieu.github.io/metaboprep/articles/quality_control.md)
+
+### Reports & Export
+
+##### [Generate HTML / PDF Report](https://mrcieu.github.io/metaboprep/articles/generate_report.md)
+
+Produce a fully annotated, interactive QC report in HTML or PDF format.
+
+[Read
+→](https://mrcieu.github.io/metaboprep/articles/generate_report.md)
+
+##### [Export Data](https://mrcieu.github.io/metaboprep/articles/export.md)
+
+Export processed data and summary tables to Excel or tab-delimited flat
+files.
+
+[Read →](https://mrcieu.github.io/metaboprep/articles/export.md)
+
+##### [Batch Normalisation](https://mrcieu.github.io/metaboprep/articles/batch_normalise.md)
+
+Correct for run-order and batch effects using quantile or rank-based
+normalisation.
+
+[Read
+→](https://mrcieu.github.io/metaboprep/articles/batch_normalise.md)
