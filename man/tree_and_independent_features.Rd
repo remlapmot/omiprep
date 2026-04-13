@@ -8,7 +8,8 @@ tree_and_independent_features(
   data,
   tree_cut_height = 0.5,
   features_exclude = NULL,
-  feature_selection = "max_var_exp"
+  feature_selection = "max_var_exp",
+  cores = NULL
 )
 }
 \arguments{
@@ -18,7 +19,9 @@ tree_and_independent_features(
 
 \item{features_exclude}{character, vector of feature id indicating features to exclude from the sample and PCA summary analysis but keep in the data}
 
-\item{feature_selection}{character. Method for selecting a representative feature from each correlated feature cluster. 
+\item{feature_selection}{character. Method for selecting a representative feature from each correlated feature cluster.}
+
+\item{cores}{number of cores available for parallelism; the default null will try find the maximum available cores - 1; set to 1 for linear, but potentially slow, computation of the correlation matrix. 
 One of:
 \describe{
   \item{\code{"max_var_exp"}}{(Default) Selects the feature with the highest sum of absolute Spearman correlations to other features in the cluster; 

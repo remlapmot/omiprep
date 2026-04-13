@@ -21,6 +21,7 @@
 #' @param sample_ids character, vector of sample ids to retain and work with, all others samples will be excluded
 #' @param feature_ids character, vector of feature ids to retain and work with, all other features will be excluded
 #' @param features_exclude_but_keep character, vector of feature ids indicating features to exclude from the sample and PCA quality control analysis but keep in the data, OR a name of a logical column in the features data indicating the same
+#' @param cores number of cores available for parallelism; the default null will try find the maximum available cores - 1; set to 1 for linear, but potentially slow, computation of the correlation matrix. 
 #' 
 #' @include class_metaboprep.R
 #' @importFrom stats quantile
@@ -41,7 +42,8 @@ quality_control <- new_generic("quality_control", c("metaboprep"), function(meta
                                                                             max_num_pcs = 10, 
                                                                             sample_ids = NULL, 
                                                                             feature_ids = NULL, 
-                                                                            features_exclude_but_keep = NULL) { S7_dispatch() })
+                                                                            features_exclude_but_keep = NULL, 
+                                                                            cores = NULL) { S7_dispatch() })
 #' @name quality_control
 method(quality_control, Metaboprep) <- function(metaboprep, 
                                                 source_layer="input", 
@@ -57,19 +59,23 @@ method(quality_control, Metaboprep) <- function(metaboprep,
                                                 max_num_pcs = 10, 
                                                 sample_ids = NULL, 
                                                 feature_ids = NULL, 
-                                                features_exclude_but_keep = NULL){
+                                                features_exclude_but_keep = NULL, 
+                                                cores = NULL){
 
   cli::cli_h1("Starting Metabolite QC Process")
-  
+  t_total <- proc.time()
+  .qc_timings <- list()
 
   # input validation
   cli::cli_progress_step("Validating input parameters")
+  t_step <- proc.time()
   source_layer <- match.arg(source_layer, choices = dimnames(metaboprep@data)[[3]])
   outlier_treatment <- match.arg(outlier_treatment, choices = c("leave_be", "turn_NA", "winsorize"))
   stopifnot("sample_ids must all be found in the data" = is.null(sample_ids) || all(sample_ids %in% metaboprep@samples[["sample_id"]]))
-  stopifnot("feature_ids must all be found in the data" = is.null(feature_ids) || all(feature_ids %in% metaboprep@features[["feature_id"]]))  
+  stopifnot("feature_ids must all be found in the data" = is.null(feature_ids) || all(feature_ids %in% metaboprep@features[["feature_id"]]))
   stopifnot("`features_exclude_but_keep` must be a logical column in the features data or a vector of feature ids all present in the data" = is.null(features_exclude_but_keep) || (all(features_exclude_but_keep %in% names(metaboprep@features)) && all(is.logical(metaboprep@features[[features_exclude_but_keep]]))) || all(features_exclude_but_keep %in% metaboprep@features[["feature_id"]]) )
   cli_progress_update()
+  .qc_timings[["validation"]] <- (proc.time() - t_step)["elapsed"]
   
 
   # get ids & update exclusions if user has passed a predefined set of ids
@@ -108,32 +114,38 @@ method(quality_control, Metaboprep) <- function(metaboprep,
 
   # run sample summary and feature summary on the raw data
   cli::cli_progress_step("Sample & Feature Summary Statistics for raw data")
+  t_step <- proc.time()
   stopifnot("No remaining features" = length(setdiff(feature_ids, exclude_but_keep_feats)) > 0)
   stopifnot("No remaining samples"  = length(sample_ids) > 0)
-  metaboprep <- summarise(metaboprep, 
-                          source_layer     = source_layer, 
-                          outlier_udist    = outlier_udist, 
-                          tree_cut_height  = tree_cut_height, 
+  metaboprep <- summarise(metaboprep,
+                          source_layer     = source_layer,
+                          outlier_udist    = outlier_udist,
+                          tree_cut_height  = tree_cut_height,
                           feature_selection= feature_selection,
-                          sample_ids       = sample_ids, 
+                          sample_ids       = sample_ids,
                           feature_ids      = feature_ids,
                           features_exclude = exclude_but_keep_feats,
-                          output           = "object")
+                          output           = "object",
+                          cores            = cores)
+  .qc_timings[["summarise_raw"]] <- (proc.time() - t_step)["elapsed"]
 
 
   # data to work from and add another layer - we now work with the 'destination data', plus any exclusions, from now on
   cli::cli_progress_step("Copying {source_layer} data to new 'qc' data layer")
+  t_step <- proc.time()
   dat <- metaboprep@data[, , source_layer]
   dat[!rownames(dat) %in% sample_ids, ]  <- NA_real_
   dat[, !colnames(dat) %in% feature_ids] <- NA_real_
   metaboprep@data <- add_layer(current    = metaboprep@data,
                                layer      = dat,
                                layer_name = "qc")
+  .qc_timings[["copy_layer"]] <- (proc.time() - t_step)["elapsed"]
 
 
   # very bad sample missingness
   excl_samps <- c()
   cli::cli_progress_step("Assessing for extreme sample missingness >=80% - excluding {length(excl_samps)} sample(s)")
+  t_step     <- proc.time()
   est_samps  <- sample_ids
   est_feats  <- setdiff(feature_ids, exclude_but_keep_feats)
   stopifnot("No remaining features" = length(est_feats) > 0)
@@ -144,11 +156,13 @@ method(quality_control, Metaboprep) <- function(metaboprep,
   cli::cli_progress_update()
   metaboprep@exclusions$samples$extreme_sample_missingness <- excl_samps
   sample_ids <- setdiff(sample_ids, excl_samps)
-  
-  
+  .qc_timings[["extreme_sample_missingness"]] <- (proc.time() - t_step)["elapsed"]
+
+
   # very bad feature missingness
   excl_feats <- c()
   cli::cli_progress_step("Assessing for extreme feature missingness >=80% - excluding {length(excl_feats)} feature(s)")
+  t_step     <- proc.time()
   est_samps  <- sample_ids
   est_feats  <- setdiff(feature_ids, exclude_but_keep_feats)
   stopifnot("No remaining features" = length(est_feats) > 0)
@@ -159,12 +173,14 @@ method(quality_control, Metaboprep) <- function(metaboprep,
   cli::cli_progress_update()
   metaboprep@exclusions$features$extreme_feature_missingness <- excl_feats
   feature_ids <- setdiff(feature_ids, excl_feats)
-  
+  .qc_timings[["extreme_feature_missingness"]] <- (proc.time() - t_step)["elapsed"]
+
 
   # re-estimate sample missingness and exclude based on user-defined
   if (!is.null(sample_missingness) && !is.na(sample_missingness)) {
     excl_samps <- c()
     cli::cli_progress_step("Assessing for sample missingness at specified level of >={round(sample_missingness*100)}% - excluding {length(excl_samps)} sample(s)")
+    t_step     <- proc.time()
     est_samps  <- sample_ids
     est_feats  <- setdiff(feature_ids, exclude_but_keep_feats)
     stopifnot("No remaining features" = length(est_feats) > 0)
@@ -175,13 +191,15 @@ method(quality_control, Metaboprep) <- function(metaboprep,
     cli::cli_progress_update()
     metaboprep@exclusions$samples$user_defined_sample_missingness <- excl_samps
     sample_ids <- setdiff(sample_ids, excl_samps)
+    .qc_timings[["sample_missingness"]] <- (proc.time() - t_step)["elapsed"]
   }
 
-  
+
   # re-estimate feature missingness
   if (!is.null(feature_missingness) && !is.na(feature_missingness)) {
     excl_feats <- c()
     cli::cli_progress_step("Assessing for feature missingness at specified level of >={round(feature_missingness*100)}% - excluding {length(excl_feats)} feature(s)")
+    t_step     <- proc.time()
     est_samps  <- sample_ids
     est_feats  <- setdiff(feature_ids, exclude_but_keep_feats)
     stopifnot("No remaining features" = length(est_feats) > 0)
@@ -192,13 +210,15 @@ method(quality_control, Metaboprep) <- function(metaboprep,
     cli::cli_progress_update()
     metaboprep@exclusions$features$user_defined_feature_missingness <- excl_feats
     feature_ids <- setdiff(feature_ids, excl_feats)
+    .qc_timings[["feature_missingness"]] <- (proc.time() - t_step)["elapsed"]
   }
 
-  
+
   # total peak area
   if (!is.null(total_peak_area_sd) && !is.na(total_peak_area_sd)) {
     excl_samps <- c()
     cli::cli_progress_step("Calculating total peak abundance outliers at +/- {total_peak_area_sd} Sdev - excluding {length(excl_samps)} sample(s)")
+    t_step        <- proc.time()
     est_samps     <- sample_ids
     est_feats     <- setdiff(feature_ids, exclude_but_keep_feats)
     stopifnot("No remaining features" = length(est_feats) > 0)
@@ -213,6 +233,7 @@ method(quality_control, Metaboprep) <- function(metaboprep,
     cli::cli_progress_update()
     metaboprep@exclusions$samples$user_defined_sample_totalpeakarea <- excl_samps
     sample_ids    <- setdiff(sample_ids, excl_samps)
+    .qc_timings[["total_peak_area"]] <- (proc.time() - t_step)["elapsed"]
   }
 
 
@@ -260,15 +281,18 @@ method(quality_control, Metaboprep) <- function(metaboprep,
     excl_samps <- "..."
     num_pcs    <- "..."
     cli::cli_progress_step("Sample PCA outlier analysis - re-identify feature independence and PC outliers - excluding {length(excl_samps)} sample(s) over PCs 1:{num_pcs}")
-    metaboprep  <- summarise(metaboprep,  
-                             source_layer     = "qc", 
-                             outlier_udist    = outlier_udist, 
-                             tree_cut_height  = tree_cut_height, 
+    t_step      <- proc.time()
+    metaboprep  <- summarise(metaboprep,
+                             source_layer     = "qc",
+                             outlier_udist    = outlier_udist,
+                             tree_cut_height  = tree_cut_height,
                              feature_selection= feature_selection,
-                             sample_ids       = sample_ids, 
+                             sample_ids       = sample_ids,
                              feature_ids      = feature_ids,
                              features_exclude = exclude_but_keep_feats,
-                             output           = "object")
+                             output           = "object",
+                             cores            = cores)
+    .qc_timings[["summarise_pca"]] <- (proc.time() - t_step)["elapsed"]
 
     if (is.null(max_num_pcs)) {
       num_pcs <- attr(metaboprep@sample_summary, "qc_num_pcs_scree")
@@ -290,15 +314,18 @@ method(quality_control, Metaboprep) <- function(metaboprep,
 
   # Make final QC dataset
   cli::cli_progress_step("Creating final QC dataset...")
-  metaboprep <- summarise(metaboprep, 
-                          source_layer     = "qc", 
-                          outlier_udist    = outlier_udist, 
-                          tree_cut_height  = tree_cut_height, 
+  t_step     <- proc.time()
+  metaboprep <- summarise(metaboprep,
+                          source_layer     = "qc",
+                          outlier_udist    = outlier_udist,
+                          tree_cut_height  = tree_cut_height,
                           feature_selection= feature_selection,
-                          sample_ids       = sample_ids, 
+                          sample_ids       = sample_ids,
                           feature_ids      = feature_ids,
                           features_exclude = exclude_but_keep_feats,
-                          output           = "object")
+                          output           = "object", 
+                          cores            = cores)
+  .qc_timings[["summarise_final"]] <- (proc.time() - t_step)["elapsed"]
   
   
   # set parameters used
@@ -355,7 +382,17 @@ method(quality_control, Metaboprep) <- function(metaboprep,
   metaboprep@samples  <- s
   metaboprep@features <- f
   
+  .qc_timings[["total"]] <- (proc.time() - t_total)["elapsed"]
   cli::cli_progress_step("Metabolite QC Process Completed")
+
+  # step timing summary
+  timing_df <- data.frame(
+    step    = names(.qc_timings),
+    seconds = round(unlist(.qc_timings), 2)
+  )
+  timing_df$pct <- round(100 * timing_df$seconds / .qc_timings[["total"]], 1)
+  cli::cli_h2("Step timings")
+  print(timing_df, row.names = FALSE)
 
   # return the metabolites with underlying data (+/- adjustments) and exclusion matrix
   return(metaboprep)

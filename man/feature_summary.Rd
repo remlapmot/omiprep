@@ -13,7 +13,8 @@ feature_summary(
   sample_ids = NULL,
   feature_ids = NULL,
   features_exclude = NULL,
-  output = "data.frame"
+  output = "data.frame",
+  cores = NULL
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ feature_summary(
 \item{features_exclude}{character, vector of feature id indicating features to exclude from the sample and PCA summary analysis but keep in the data}
 
 \item{output}{character, type of output, either 'object' to return the updated metaboprep object, or 'data.frame' to return the data.}
+
+\item{cores}{number of cores available for parallelism; the default null will try find the maximum available cores - 1; set to 1 for linear, but potentially slow, computation of the correlation matrix.}
 }
 \description{
 This function estimates feature statistics for samples in a matrix of metabolite features.

@@ -16,7 +16,8 @@ summarise <- new_generic(name = "summarise",
                                   sample_ids        = NULL, 
                                   feature_ids       = NULL, 
                                   features_exclude  = NULL, 
-                                  output="data.frame") { S7_dispatch() })
+                                  output            ="data.frame",
+                                  cores             = NULL) { S7_dispatch() })
 #' @name summarise
 method(summarise, Metaboprep) <- function(metaboprep, 
                                           source_layer      ="input", 
@@ -26,7 +27,8 @@ method(summarise, Metaboprep) <- function(metaboprep,
                                           sample_ids        = NULL, 
                                           feature_ids       = NULL, 
                                           features_exclude  = NULL, 
-                                          output="data.frame") {
+                                          output            ="data.frame",
+                                          cores             = NULL) {
   
   # check inputs 
   output       <- match.arg(output, choices = c("object", "data.frame"))
@@ -42,29 +44,30 @@ method(summarise, Metaboprep) <- function(metaboprep,
   
   
   # run summaries
-  feature_sum <- feature_summary(metaboprep, 
-                                 source_layer     = source_layer, 
-                                 outlier_udist    = outlier_udist, 
+  feature_sum <- feature_summary(metaboprep,
+                                 source_layer     = source_layer,
+                                 outlier_udist    = outlier_udist,
                                  tree_cut_height  = tree_cut_height,
                                  feature_selection= feature_selection,
-                                 sample_ids       = sample_ids, 
+                                 sample_ids       = sample_ids,
                                  feature_ids      = feature_ids,
-                                 features_exclude = features_exclude, 
-                                 output           = "data.frame")
-  
-  sample_sum  <- sample_summary(metaboprep,  
-                                source_layer  = source_layer, 
-                                outlier_udist = outlier_udist, 
-                                sample_ids    = sample_ids, 
-                                feature_ids   = setdiff(feature_ids, features_exclude),
-                                output        = "data.frame")
-  
+                                 features_exclude = features_exclude,
+                                 output           = "data.frame",
+                                 cores            = cores)
+
+  sample_sum <- sample_summary(metaboprep,
+                               source_layer  = source_layer,
+                               outlier_udist = outlier_udist,
+                               sample_ids    = sample_ids,
+                               feature_ids   = setdiff(feature_ids, features_exclude),
+                               output        = "data.frame")
+
   indep_feats <- feature_sum[feature_sum$independent_features & !is.na(feature_sum$independent_features), "feature_id"]
-  
-  pc_outlier  <- pc_and_outliers(metaboprep, 
-                                 source_layer = source_layer, 
-                                 sample_ids   = sample_ids, 
-                                 feature_ids  = indep_feats)
+
+  pc_outlier <- pc_and_outliers(metaboprep,
+                                source_layer = source_layer,
+                                sample_ids   = sample_ids,
+                                feature_ids  = indep_feats)
   
   sample_sum  <- merge(sample_sum, pc_outlier, by="sample_id", all = TRUE)
   sample_sum  <- sample_sum[order(match(sample_sum[["sample_id"]], rownames(metaboprep@data))), ]

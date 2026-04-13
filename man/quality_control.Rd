@@ -19,7 +19,8 @@ quality_control(
   max_num_pcs = 10,
   sample_ids = NULL,
   feature_ids = NULL,
-  features_exclude_but_keep = NULL
+  features_exclude_but_keep = NULL,
+  cores = NULL
 )
 }
 \arguments{
@@ -52,6 +53,8 @@ quality_control(
 \item{feature_ids}{character, vector of feature ids to retain and work with, all other features will be excluded}
 
 \item{features_exclude_but_keep}{character, vector of feature ids indicating features to exclude from the sample and PCA quality control analysis but keep in the data, OR a name of a logical column in the features data indicating the same}
+
+\item{cores}{number of cores available for parallelism; the default null will try find the maximum available cores - 1; set to 1 for linear, but potentially slow, computation of the correlation matrix.}
 }
 \description{
 This function is a wrapper function that performs the key quality controls steps on a metabolomics data set.

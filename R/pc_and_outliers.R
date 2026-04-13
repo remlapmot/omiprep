@@ -35,43 +35,40 @@ method(pc_and_outliers, Metaboprep) <- function(metaboprep, source_layer="input"
   pcadata <- metaboprep@data[sample_ids, feature_ids, source_layer]
   
   
-  # impute missingness as medians
-  pcadata = median_impute(data = pcadata)
-
-  
-  # z-transformation
-  pcadata = apply(pcadata, 2, function(x){
+  # impute missingness as medians + z-transformation
+  pcadata <- median_impute(data = pcadata)
+  pcadata <- apply(pcadata, 2, function(x){
     ( x - mean(x, na.rm = TRUE) ) / sd(x, na.rm = TRUE)
   })
-  
-  
+
   # perform PCA
   mypca  <- stats::prcomp(pcadata, center = FALSE, scale = FALSE)
   varexp <- summary(mypca)[[6]][2, ]
 
-  
   # find number of sig PCs
   ev <- eigen(cor(pcadata))
-  ap <- nFactors::parallel(subject=nrow(pcadata), var=ncol(pcadata), rep=100, cent=.05)
-  ns <- nFactors::nScree(x=ev$values, aparallel=ap$eigen$qevpea)
+  if (ncol(pcadata) < 300) {
+    ap             <- nFactors::parallel(subject=nrow(pcadata), var=ncol(pcadata), rep=100, cent=.05)
+    ns             <- nFactors::nScree(x=ev$values, aparallel=ap$eigen$qevpea)
+    nsig_parrallel <- ns[[1]][["nparallel"]]
+  } else {
+    ns             <- nFactors::nScree(x=ev$values)
+    nsig_parrallel <- NA_real_
+  }
   af <- as.numeric( ns[[1]][["naf"]] )
   if(af < 2) { af = 2 }
-  nsig_parrallel <- ns[[1]][["nparallel"]]
-
 
   # identify outliers - 3SD
   o_mat3           <- outlier_detection(mypca$x[, 1:af], nsd = 3, by = "column")
   colnames(o_mat3) <- paste0(colnames(o_mat3), "_3_sd_outlier")
   max_cols         <- ifelse(ncol(mypca$x)<10, ncol(mypca$x), ifelse(af > 10, af, 10))
   pc_out           <- cbind(mypca$x[,1:max_cols], o_mat3)
-   
-  
+
   # identify outliers - 4SD
   o_mat4           <- outlier_detection(mypca$x[, 1:af], nsd = 4, by = "column")
   colnames(o_mat4) <- paste0(colnames(o_mat4), "_4_sd_outlier")
   pc_out           <- cbind(pc_out, o_mat4)
- 
-  
+
   # identify outliers - 5SD
   o_mat5           <- outlier_detection(mypca$x[, 1:af], nsd = 5, by = "column")
   colnames(o_mat5) <- paste0(colnames(o_mat5), "_5_sd_outlier")
