@@ -63,7 +63,8 @@ feature_sum1 <- feature_summary(metaboprep     = mydata,
                                 source_layer    = "input", 
                                 outlier_udist   = 1.0,
                                 tree_cut_height = 0.5,
-                                output          = "data.frame")
+                                output          = "data.frame", 
+                                cores           = 1)
 ```
 
 ## Table of feature summary
@@ -136,7 +137,8 @@ feature_sum_subset <- feature_summary(metaboprep      = mydata,
                                       tree_cut_height = 0.5,
                                       sample_ids      = sids,
                                       feature_ids     = fids,
-                                      output          = "data.frame")
+                                      output          = "data.frame",
+                                      cores           = 1)
 ```
 
 ## Table of feature summary for subset
@@ -164,7 +166,8 @@ sam_n_feat_sum <- summarise(metaboprep      = mydata,
                             tree_cut_height = 0.5,
                             sample_ids      = sids, 
                             feature_ids     = fids,
-                            output          = "data.frame")
+                            output          = "data.frame", 
+                            cores           = 1)
 ```
 
 ## Table of feature summary for subset

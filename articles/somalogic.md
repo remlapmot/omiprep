@@ -104,7 +104,8 @@ mydata <- mydata |>
                   tree_cut_height     = 0.5, 
                   pc_outlier_sd       = 5,
                   feature_selection   = "max_var_exp",
-                  features_exclude_but_keep = NULL
+                  features_exclude_but_keep = NULL, 
+                  cores               = 1
                   )
 #> 
 #> ── Starting Metabolite QC Process ──────────────────────────────────────────────
@@ -112,13 +113,13 @@ mydata <- mydata |>
 #> ✔ Validating input parameters [11ms]
 #> 
 #> ℹ Sample & Feature Summary Statistics for raw data
-#> ✔ Sample & Feature Summary Statistics for raw data [447ms]
+#> ✔ Sample & Feature Summary Statistics for raw data [453ms]
 #> 
 #> ℹ Copying input data to new 'qc' data layer
-#> ✔ Copying input data to new 'qc' data layer [24ms]
+#> ✔ Copying input data to new 'qc' data layer [23ms]
 #> 
 #> ℹ Assessing for extreme sample missingness >=80% - excluding 0 sample(s)
-#> ✔ Assessing for extreme sample missingness >=80% - excluding 0 sample(s) [16ms]
+#> ✔ Assessing for extreme sample missingness >=80% - excluding 0 sample(s) [17ms]
 #> 
 #> ℹ Assessing for extreme feature missingness >=80% - excluding 0 feature(s)
 #> ✔ Assessing for extreme feature missingness >=80% - excluding 0 feature(s) [17m…
@@ -143,7 +144,23 @@ mydata <- mydata |>
 #> ✔ Creating final QC dataset... [403ms]
 #> 
 #> ℹ Metabolite QC Process Completed
-#> ✔ Metabolite QC Process Completed [14ms]
+#> 
+#> ℹ Metabolite QC Process Completed── Step timings ──
+#> ℹ Metabolite QC Process Completed
+#> ℹ Metabolite QC Process Completed
+#>                         step seconds  pct
+#>                   validation    0.00  0.0
+#>                summarise_raw    0.43 28.3
+#>                   copy_layer    0.00  0.0
+#>   extreme_sample_missingness    0.00  0.0
+#>  extreme_feature_missingness    0.00  0.0
+#>           sample_missingness    0.00  0.0
+#>          feature_missingness    0.00  0.0
+#>              total_peak_area    0.00  0.0
+#>                summarise_pca    0.50 32.9
+#>              summarise_final    0.38 25.0
+#>                        total    1.52 99.9
+#> ✔ Metabolite QC Process Completed [19ms]
 ```
 
 ## Quick summary of the metaboprep object following QC

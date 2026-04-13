@@ -14,7 +14,8 @@ summarise(
   sample_ids = NULL,
   feature_ids = NULL,
   features_exclude = NULL,
-  output = "data.frame"
+  output = "data.frame",
+  cores = NULL
 )
 ```
 
@@ -60,3 +61,9 @@ summarise(
 
   character, type of output, either 'object' to return the updated
   metaboprep object, or 'data.frame' to return the data.
+
+- cores:
+
+  number of cores available for parallelism; the default null will try
+  find the maximum available cores - 1; set to 1 for linear, but
+  potentially slow, computation of the correlation matrix.

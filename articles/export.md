@@ -30,23 +30,23 @@ mydata      <- Metaboprep(data = datain$data, samples = datain$samples, features
 
 ``` r
 ## Adding suppressWarnings() to avoid deparse() error when rendering vignette with S7 method warnings
-mydata         <- suppressWarnings( quality_control(mydata) )
+mydata         <- suppressWarnings( quality_control(mydata, cores = 1) )
 #> 
 #> ── Starting Metabolite QC Process ──────────────────────────────────────────────
 #> ℹ Validating input parameters
 #> ✔ Validating input parameters [8ms]
 #> 
 #> ℹ Sample & Feature Summary Statistics for raw data
-#> ✔ Sample & Feature Summary Statistics for raw data [1s]
+#> ✔ Sample & Feature Summary Statistics for raw data [895ms]
 #> 
 #> ℹ Copying input data to new 'qc' data layer
 #> ✔ Copying input data to new 'qc' data layer [32ms]
 #> 
 #> ℹ Assessing for extreme sample missingness >=80% - excluding 0 sample(s)
-#> ✔ Assessing for extreme sample missingness >=80% - excluding 0 sample(s) [18ms]
+#> ✔ Assessing for extreme sample missingness >=80% - excluding 0 sample(s) [17ms]
 #> 
 #> ℹ Assessing for extreme feature missingness >=80% - excluding 0 feature(s)
-#> ✔ Assessing for extreme feature missingness >=80% - excluding 0 feature(s) [22m…
+#> ✔ Assessing for extreme feature missingness >=80% - excluding 0 feature(s) [17m…
 #> 
 #> ℹ Assessing for sample missingness at specified level of >=20% - excluding 0 sa…
 #> ✔ Assessing for sample missingness at specified level of >=20% - excluding 2 sa…
@@ -58,17 +58,33 @@ mydata         <- suppressWarnings( quality_control(mydata) )
 #> ✔ Calculating total peak abundance outliers at +/- 5 Sdev - excluding 0 sample(…
 #> 
 #> ℹ Running sample data PCA outlier analysis at +/- 5 Sdev
-#> ✔ Running sample data PCA outlier analysis at +/- 5 Sdev [17ms]
+#> ✔ Running sample data PCA outlier analysis at +/- 5 Sdev [19ms]
 #> 
 #> ℹ Sample PCA outlier analysis - re-identify feature independence and PC outlier…
 #> ! The stated max PCs [max_num_pcs=10] to use in PCA outlier assessment is greater than the number of available informative PCs [2]
 #> ℹ Sample PCA outlier analysis - re-identify feature independence and PC outlier…✔ Sample PCA outlier analysis - re-identify feature independence and PC outlier…
 #> 
 #> ℹ Creating final QC dataset...
-#> ✔ Creating final QC dataset... [848ms]
+#> ✔ Creating final QC dataset... [1.2s]
 #> 
 #> ℹ Metabolite QC Process Completed
-#> ✔ Metabolite QC Process Completed [28ms]
+#> 
+#> ℹ Metabolite QC Process Completed── Step timings ──
+#> ℹ Metabolite QC Process Completed
+#> ℹ Metabolite QC Process Completed
+#>                         step seconds   pct
+#>                   validation    0.00   0.0
+#>                summarise_raw    0.88  26.1
+#>                   copy_layer    0.00   0.0
+#>   extreme_sample_missingness    0.00   0.0
+#>  extreme_feature_missingness    0.00   0.0
+#>           sample_missingness    0.00   0.0
+#>          feature_missingness    0.00   0.0
+#>              total_peak_area    0.00   0.0
+#>                summarise_pca    1.13  33.5
+#>              summarise_final    1.14  33.8
+#>                        total    3.37 100.0
+#> ✔ Metabolite QC Process Completed [30ms]
 ```
 
 ## Export Metaboprep
@@ -88,18 +104,18 @@ unname(sapply(files, function(path) {
   parts <- strsplit(path, .Platform$file.sep)[[1]]
   paste(tail(parts, 4), collapse = .Platform$file.sep)
 }))
-#>  [1] "output/metaboprep_export_2026_04_07/input/config.yml"         
-#>  [2] "output/metaboprep_export_2026_04_07/input/data.tsv"           
-#>  [3] "output/metaboprep_export_2026_04_07/input/feature_summary.tsv"
-#>  [4] "output/metaboprep_export_2026_04_07/input/features.tsv"       
-#>  [5] "output/metaboprep_export_2026_04_07/input/sample_summary.tsv" 
-#>  [6] "output/metaboprep_export_2026_04_07/input/samples.tsv"        
-#>  [7] "output/metaboprep_export_2026_04_07/qc/config.yml"            
-#>  [8] "output/metaboprep_export_2026_04_07/qc/data.tsv"              
-#>  [9] "output/metaboprep_export_2026_04_07/qc/feature_summary.tsv"   
-#> [10] "output/metaboprep_export_2026_04_07/qc/feature_tree.RDS"      
-#> [11] "output/metaboprep_export_2026_04_07/qc/features.tsv"          
-#> [12] "output/metaboprep_export_2026_04_07/qc/sample_summary.tsv"    
-#> [13] "output/metaboprep_export_2026_04_07/qc/samples.tsv"           
-#> [14] "output/metaboprep_export_2026_04_07/qc/var_exp.tsv"
+#>  [1] "output/metaboprep_export_2026_04_13/input/config.yml"         
+#>  [2] "output/metaboprep_export_2026_04_13/input/data.tsv"           
+#>  [3] "output/metaboprep_export_2026_04_13/input/feature_summary.tsv"
+#>  [4] "output/metaboprep_export_2026_04_13/input/features.tsv"       
+#>  [5] "output/metaboprep_export_2026_04_13/input/sample_summary.tsv" 
+#>  [6] "output/metaboprep_export_2026_04_13/input/samples.tsv"        
+#>  [7] "output/metaboprep_export_2026_04_13/qc/config.yml"            
+#>  [8] "output/metaboprep_export_2026_04_13/qc/data.tsv"              
+#>  [9] "output/metaboprep_export_2026_04_13/qc/feature_summary.tsv"   
+#> [10] "output/metaboprep_export_2026_04_13/qc/feature_tree.RDS"      
+#> [11] "output/metaboprep_export_2026_04_13/qc/features.tsv"          
+#> [12] "output/metaboprep_export_2026_04_13/qc/sample_summary.tsv"    
+#> [13] "output/metaboprep_export_2026_04_13/qc/samples.tsv"           
+#> [14] "output/metaboprep_export_2026_04_13/qc/var_exp.tsv"
 ```

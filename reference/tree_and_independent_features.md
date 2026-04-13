@@ -10,7 +10,8 @@ tree_and_independent_features(
   data,
   tree_cut_height = 0.5,
   features_exclude = NULL,
-  feature_selection = "max_var_exp"
+  feature_selection = "max_var_exp",
+  cores = NULL
 )
 ```
 
@@ -34,7 +35,13 @@ tree_and_independent_features(
 - feature_selection:
 
   character. Method for selecting a representative feature from each
-  correlated feature cluster. One of:
+  correlated feature cluster.
+
+- cores:
+
+  number of cores available for parallelism; the default null will try
+  find the maximum available cores - 1; set to 1 for linear, but
+  potentially slow, computation of the correlation matrix. One of:
 
   `"max_var_exp"`
 

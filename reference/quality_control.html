@@ -100,7 +100,8 @@ Key principles:
 <span>  max_num_pcs <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  sample_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  feature_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  features_exclude_but_keep <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  features_exclude_but_keep <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cores <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -166,6 +167,10 @@ Key principles:
 
 <dt id="arg-features-exclude-but-keep">features_exclude_but_keep<a class="anchor" aria-label="anchor" href="#arg-features-exclude-but-keep"></a></dt>
 <dd><p>character, vector of feature ids indicating features to exclude from the sample and PCA quality control analysis but keep in the data, OR a name of a logical column in the features data indicating the same</p></dd>
+
+
+<dt id="arg-cores">cores<a class="anchor" aria-label="anchor" href="#arg-cores"></a></dt>
+<dd><p>number of cores available for parallelism; the default null will try find the maximum available cores - 1; set to 1 for linear, but potentially slow, computation of the correlation matrix.</p></dd>
 
 </dl></div>
 

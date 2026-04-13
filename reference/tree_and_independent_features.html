@@ -71,7 +71,8 @@ tree cut step.</p>
 <span>  <span class="va">data</span>,</span>
 <span>  tree_cut_height <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  features_exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  feature_selection <span class="op">=</span> <span class="st">"max_var_exp"</span></span>
+<span>  feature_selection <span class="op">=</span> <span class="st">"max_var_exp"</span>,</span>
+<span>  cores <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -92,7 +93,11 @@ tree cut step.</p>
 
 
 <dt id="arg-feature-selection">feature_selection<a class="anchor" aria-label="anchor" href="#arg-feature-selection"></a></dt>
-<dd><p>character. Method for selecting a representative feature from each correlated feature cluster.
+<dd><p>character. Method for selecting a representative feature from each correlated feature cluster.</p></dd>
+
+
+<dt id="arg-cores">cores<a class="anchor" aria-label="anchor" href="#arg-cores"></a></dt>
+<dd><p>number of cores available for parallelism; the default null will try find the maximum available cores - 1; set to 1 for linear, but potentially slow, computation of the correlation matrix.
 One of:</p><dl><dt><code>"max_var_exp"</code></dt>
 <dd><p>(Default) Selects the feature with the highest sum of absolute Spearman correlations to other features in the cluster;
   effectively the feature explaining the most shared variance.</p></dd>
