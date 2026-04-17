@@ -168,6 +168,7 @@ sam_n_feat_sum <- summarise(metaboprep      = mydata,
                             feature_ids     = fids,
                             output          = "data.frame", 
                             cores           = 1)
+#> AF =  1
 ```
 
 ## Table of feature summary for subset

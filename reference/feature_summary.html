@@ -74,7 +74,8 @@
 <span>  feature_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  features_exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  output <span class="op">=</span> <span class="st">"data.frame"</span>,</span>
-<span>  cores <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  cores <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fast <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -120,6 +121,10 @@
 
 <dt id="arg-cores">cores<a class="anchor" aria-label="anchor" href="#arg-cores"></a></dt>
 <dd><p>number of cores available for parallelism; the default null will try find the maximum available cores - 1; set to 1 for linear, but potentially slow, computation of the correlation matrix.</p></dd>
+
+
+<dt id="arg-fast">fast<a class="anchor" aria-label="anchor" href="#arg-fast"></a></dt>
+<dd><p>If <code>TRUE</code>, accelerates correlation computation by imputing missing values to the column minimum, pre-ranking all columns, and computing Pearson correlation on ranked data (approximating Spearman). Substantially faster than exact Spearman at large feature dimensions (\(p &gt; 5000\)) but assumes missing data are missing at random. Features with high missingness will have inflated rank ties at the median (ensure these are filtered out appropriately with the missingness option). Default <code>FALSE</code>.</p></dd>
 
 </dl></div>
 
