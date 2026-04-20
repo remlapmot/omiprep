@@ -196,10 +196,8 @@ timing$platform <- factor(timing$platform, levels = platforms$platform)
 
 # label for legend: platform + feature count
 timing$platform_label <- factor(
-  sprintf("%s (~%s features)", timing$platform,
-          format(timing$n_features, big.mark = ",")),
-  levels = sprintf("%s (~%s features)", platforms$platform,
-                   format(platforms$n_features, big.mark = ","))
+           sprintf("%s features (e.g. %s)", trimws(format(timing$n_features, big.mark = ",")), timing$platform),
+  levels = sprintf("%s features (e.g. %s)", trimws(format(platforms$n_features, big.mark = ",")), platforms$platform)
 )
 
 p <- ggplot(timing[!is.na(timing$minutes), ],
@@ -222,8 +220,6 @@ p <- ggplot(timing[!is.na(timing$minutes), ],
     name = "Platform"
   ) +
   labs(
-    title    = "metaboprep QC pipeline — runtime by platform",
-    subtitle = "Wall-clock time for quality_control() at platform-typical feature counts",
     x        = "Number of samples (log scale)",
     y        = "Time (minutes, log scale)"
   ) +
@@ -239,7 +235,7 @@ p <- ggplot(timing[!is.na(timing$minutes), ],
   )
 p
 
-out_png <- file.path("scripts", "qc_timing_by_platform.png")
+out_png <- file.path("scripts", "timing_testing", "qc_timing_by_platform.png")
 ggsave(out_png, plot = p, width = 8, height = 5.5, dpi = 150)
 cat(sprintf("Plot written to: %s\n", out_png))
 
@@ -743,10 +739,9 @@ p_cmp <- ggplot(combined[combined$platform=="Olink",],
   scale_fill_manual(
     values = pipeline_colours,
     name   = "Pipeline",
-    labels = c("metaboprep2" = "metaboprep 2", "metaboprep1" = "metaboprep 1")
+    labels = c("metaboprep2" = "omiprep", "metaboprep1" = "metaboprep")
   ) +
   labs(
-    title    = "metaboprep 1 vs 2 — QC pipeline runtime",
     x        = "Number of samples",
     y        = "Time (log scale)"
   ) +
@@ -758,14 +753,14 @@ p_cmp <- ggplot(combined[combined$platform=="Olink",],
     axis.title       = element_text(face = "bold"),
     panel.grid.minor = element_blank(),
     panel.grid.major.x = element_blank(),
-    strip.text       = element_text(face = "bold", size = 11),
+    strip.text       = element_text(face = "bold", size = 14),
     legend.title     = element_text(face = "bold"),
     legend.position  = "right"
   )
 p_cmp
 
-out_png_cmp <- file.path("scripts", "timing_metaboprep1_vs_2.png")
-ggsave(out_png_cmp, plot = p_cmp, width = 9, height = 9, dpi = 150)
+out_png_cmp <- file.path("scripts", "timing_testing", "timing_metaboprep1_vs_2.png")
+ggsave(out_png_cmp, plot = p_cmp, width = 9, height = 7, dpi = 150)
 cat(sprintf("Plot written to: %s\n", out_png_cmp))
 
 
