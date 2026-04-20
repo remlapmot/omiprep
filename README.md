@@ -3,17 +3,16 @@
 
 # omiprep
 
+<p align="center">
+
+<img src='man/figures/logo.png' align="right" height="131.5" alt="omiprep-logo"/>
+</p>
+
 <!-- badges: start -->
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
-
-<!-- <div style="text-align: center"> -->
-
-<!--   <img src="man/figures/logo.png" alt="omiprep logo" width="150"/>  -->
-
-<!-- </div> -->
 
 The goal of `omiprep` is to:
 
@@ -26,8 +25,8 @@ The goal of `omiprep` is to:
 
 ## Installation
 
-You can install the development version of omiprep from
-[GitHub](https://github.com/MRCIEU/omiprep/tree/v2_development) with:
+You can install the latest version of omiprep from
+[GitHub](https://github.com/MRCIEU/omiprep) with:
 
 ``` r
 # install.packages("pak")
@@ -80,17 +79,17 @@ mydata <- mydata |> quality_control( source_layer = "input",
 #> 
 #> ── Starting Metabolite QC Process ──────────────────────────────────────────────
 #> ℹ Validating input parameters✔ Validating input parameters [4ms]
-#> ℹ Sample & Feature Summary Statistics for raw data✔ Sample & Feature Summary Statistics for raw data [456ms]
-#> ℹ Copying input data to new 'qc' data layer✔ Copying input data to new 'qc' data layer [12ms]
+#> ℹ Sample & Feature Summary Statistics for raw data✔ Sample & Feature Summary Statistics for raw data [463ms]
+#> ℹ Copying input data to new 'qc' data layer✔ Copying input data to new 'qc' data layer [11ms]
 #> ℹ Assessing for extreme sample missingness >=80% - excluding 0 sample(s)✔ Assessing for extreme sample missingness >=80% - excluding 0 sample(s) [11ms]
 #> ℹ Assessing for extreme feature missingness >=80% - excluding 0 feature(s)✔ Assessing for extreme feature missingness >=80% - excluding 0 feature(s) [8ms]
 #> ℹ Assessing for sample missingness at specified level of >=20% - excluding 0 sa…✔ Assessing for sample missingness at specified level of >=20% - excluding 2 sa…
 #> ℹ Assessing for feature missingness at specified level of >=20% - excluding 0 f…✔ Assessing for feature missingness at specified level of >=20% - excluding 0 f…
 #> ℹ Calculating total peak abundance outliers at +/- 5 Sdev - excluding 0 sample(…✔ Calculating total peak abundance outliers at +/- 5 Sdev - excluding 0 sample(…
-#> ℹ Running sample data PCA outlier analysis at +/- 5 Sdev✔ Running sample data PCA outlier analysis at +/- 5 Sdev [8ms]
+#> ℹ Running sample data PCA outlier analysis at +/- 5 Sdev✔ Running sample data PCA outlier analysis at +/- 5 Sdev [9ms]
 #> ℹ Sample PCA outlier analysis - re-identify feature independence and PC outlier…ℹ Sample PCA outlier analysis - re-identify feature independence and PC outlier…                                                                                 ! The stated max PCs [max_num_pcs=10] to use in PCA outlier assessment is greater than the number of available informative PCs [2]
 #> ℹ Sample PCA outlier analysis - re-identify feature independence and PC outlier…✔ Sample PCA outlier analysis - re-identify feature independence and PC outlier…
-#> ℹ Creating final QC dataset...✔ Creating final QC dataset... [442ms]
+#> ℹ Creating final QC dataset...✔ Creating final QC dataset... [445ms]
 #> ℹ Metabolite QC Process Completed✔ Metabolite QC Process Completed [10ms]
 ```
 
